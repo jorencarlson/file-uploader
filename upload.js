@@ -1,13 +1,12 @@
 const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
-const path = require('path');
 
 const SERVER_URL = process.env.UPLOAD_SERVER || 'http://localhost:8080/upload';
 const WATCH_DIR = process.env.WATCH_DIR || './watch';
 
 async function uploadFile(filePath) {
-  const filename = path.basename(filePath);
+  const filename = filePath.split('/').pop();
   const fileData = fs.readFileSync(filePath);
 
   const form = new FormData();
@@ -27,7 +26,7 @@ function startWatching(watchDir) {
 
   const existingFiles = fs.readdirSync(watchDir);
   for (const file of existingFiles) {
-    const filePath = path.join(watchDir, file);
+    const filePath = watchDir + '/' + file;
     if (fs.statSync(filePath).isFile()) {
       uploadFile(filePath);
     }
@@ -36,7 +35,7 @@ function startWatching(watchDir) {
   fs.watch(watchDir, (eventType, filename) => {
     if (!filename) return;
 
-    const filePath = path.join(watchDir, filename);
+    const filePath = watchDir + '/' + filename;
 
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       uploadFile(filePath);
