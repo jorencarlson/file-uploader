@@ -5,7 +5,7 @@ const FormData = require('form-data');
 const SERVER_URL = process.env.UPLOAD_SERVER || 'http://localhost:8080/upload';
 const WATCH_DIR = process.env.WATCH_DIR || './watch';
 
-async function uploadFile(filePath) {
+async function upload(filePath) {
   const filename = filePath.split('/').pop();
   const fileData = fs.readFileSync(filePath);
 
@@ -19,7 +19,7 @@ async function uploadFile(filePath) {
   });
 }
 
-function startWatching(watchDir) {
+function main(watchDir) {
   if (!fs.existsSync(watchDir)) {
     fs.mkdirSync(watchDir, { recursive: true });
   }
@@ -38,11 +38,10 @@ function startWatching(watchDir) {
     const filePath = watchDir + '/' + filename;
 
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      uploadFile(filePath);
+      upload(filePath);
     }
   });
 }
 
-// Start watching
 const watchDir = process.argv[2] || WATCH_DIR;
-startWatching(watchDir);
+main(watchDir);
